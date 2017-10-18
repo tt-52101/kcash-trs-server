@@ -33,7 +33,8 @@ public class Transaction {
   public static final String ASSET_SYMBOL = "ACT";
   private static final byte[] CHAIN_ID =
       MyByte.builder()
-            .copyByteString("6701c01c6042098645e0ed939fa78649bd10c2877af609fa0cad12da62690f97") // 测试链ID
+      .copyByteString("6701c01c6042098645e0ed939fa78649bd10c2877af609fa0cad12da62690f97") // 测试链ID
+//      .copyByteString("6a1cb528f6e797e58913bff7a45cdd4709be75114ccd1ccb0e611b808f4d1b75") // 正式链ID
             .getData();
   private static final Long requiredFees = 1000L; // 转账手续费 0.01 * 100000
   private static final Long transactionExpiration = 3_600_000L; // 3,600,000ms / 1h
