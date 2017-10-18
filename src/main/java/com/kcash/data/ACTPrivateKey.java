@@ -1,0 +1,126 @@
+package com.kcash.data;
+
+import com.kcash.util.Base58;
+import com.kcash.util.ECC;
+import com.kcash.util.MyByte;
+import com.kcash.util.Ripemd160;
+import com.kcash.util.SHA;
+
+import org.bouncycastle.jce.interfaces.ECPrivateKey;
+
+import java.math.BigInteger;
+
+public class ACTPrivateKey {
+
+  private String keyStr;
+  private byte[] encoded;
+  private BigInteger d;
+  private ECPrivateKey ecPrivateKey;
+  private byte[] publicKey;
+  private byte[] publicKeyCompressed;
+  private ACTAddress actAddress;
+
+  public ACTPrivateKey(String keyStr) {
+    this.keyStr = keyStr;
+    encoded = Base58.decode(keyStr);
+    if (!check(encoded)) {
+      throw new RuntimeException("私钥格式不对");
+    }
+    encoded = MyByte.copyBytes(encoded, 1, 32);
+  }
+
+  public ACTPrivateKey(byte[] encoded) {
+    if (encoded.length != 32) {
+      throw new RuntimeException("私钥长度为32byte");
+    }
+    this.encoded = encoded;
+  }
+
+  public ACTPrivateKey() {
+    d = ((ECPrivateKey) ECC.generate().getPrivate()).getD();
+    encoded = MyByte.trunk(d.toByteArray());
+  }
+
+  private boolean check(byte[] wifBytes) {
+    if (wifBytes.length != 37) {
+      return false;
+    }
+    byte[] checksum = SHA._256hash(MyByte.copyBytes(wifBytes, 33));
+    return checksum(wifBytes, checksum) ||
+           checksum(wifBytes, SHA._256hash(checksum));
+  }
+
+  private boolean checksum(byte[] wifBytes, byte[] checksum) {
+    for (int i = 0; i < 4; i++) {
+      if (wifBytes[wifBytes.length - 4 + i] != checksum[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public String getKeyStr() {
+    if (keyStr == null) {
+      byte[] temp = MyByte.builder().copy((byte) 0x80).copy(encoded).getData();
+      keyStr = Base58.encode(
+          MyByte.builder()
+                .copy(temp)
+                .copy(SHA._256hash(SHA._256hash(temp)), 4)
+                .getData());
+    }
+    return keyStr;
+  }
+
+  public byte[] getEncoded() {
+    return encoded;
+  }
+
+  public ECPrivateKey getECPrivateKey() {
+    if (ecPrivateKey == null) {
+      ecPrivateKey = ECC.loadPrivateKey(encoded);
+    }
+    return ecPrivateKey;
+  }
+
+  //
+  public byte[] getPublicKey(boolean compressed) {
+    byte[] key = compressed ? publicKeyCompressed : publicKey;
+    if (key == null) {
+      key = ECC.calculatePublicKey(getD(), compressed);
+      if (compressed) {
+        publicKeyCompressed = key;
+      } else {
+        publicKey = key;
+      }
+    }
+    return key;
+  }
+
+
+  public ACTAddress getAddress() {
+    if (actAddress == null) {
+      actAddress = new ACTAddress(Ripemd160.hash(SHA._512hash(getPublicKey(true))));
+    }
+    return actAddress;
+  }
+
+  public BigInteger getD() {
+    if (d == null) {
+      d = new BigInteger(1, encoded);
+    }
+    return d;
+  }
+
+  public static void main(String[] args) throws Exception {
+//    ACTPrivateKey p = new ACTPrivateKey("5KcLarnQx32QSfcq5Jn1AeSWNe8t4aAzmr7fVCTHpNDpho57f8u");
+//    ACTPrivateKey p = new ACTPrivateKey(
+//        MyByte.builder()
+//              .copyByteString("6f38d0d1b8d44b90a361c43d8b03b54a6676788272aedf54509d0e3c0e608711")
+//              .getData());
+    ACTPrivateKey p = new ACTPrivateKey();
+    System.out.println("prv: " + MyByte.bytesToHex(p.getEncoded()));
+    System.out.println("str: " + p.getKeyStr());
+    System.out.println("pub: " + MyByte.bytesToHex(p.getPublicKey(true)));
+    System.out.println("add: " + p.getAddress().getAddressStr());
+  }
+}
