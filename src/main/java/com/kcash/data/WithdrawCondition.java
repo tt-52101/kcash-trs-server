@@ -82,13 +82,4 @@ public class WithdrawCondition {
       this._byte = (byte) _byte;
     }
   }
-
-
-  public static void main(String[] args) throws Exception {
-    ACTAddress address = new ACTAddress("Cd7GRUr3HpGTXBBpW2cWp4mRi38kZnhEo");
-    WithdrawCondition c = new WithdrawCondition(address);
-    System.out.println(MyByte.bytesToHex(c.getBalanceId()) + " ->测试摘要算法");
-    System.err.println("bf02b44cfe0496c058ecee82307f8aa90cdbf783 ->正确结果");
-  }
-
 }

@@ -61,7 +61,7 @@ public class Node {
       try {
         node.write(trxMessage.toBytes());
         node.flush();
-        System.out.println(new String(node.read())); ;
+        System.out.println(new String(node.read()));
       } catch (IOException e) {
         e.printStackTrace();
       }

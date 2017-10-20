@@ -9,20 +9,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Data;
-
 import static com.kcash.data.Operation.OperationType.CALL_CONTRACT_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.DEPOSIT_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.IMESSAGE_MEMO_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.WITHDRAW_OP_TYPE;
 
-@Data
 public class Operation {
-  OperationType operationType; // 8bit
-  byte[] data;
+  private OperationType operationType; // 8bit
+  private byte[] data;
   //
-  byte[] bytes;
-  JSONObject json;
+  private byte[] bytes;
+  private JSONObject json;
 
   public byte[] toBytes() {
     if (bytes == null) {
@@ -157,6 +154,18 @@ public class Operation {
             v.toString()
         }));
     return result;
+  }
+
+  private void setOperationType(OperationType operationType) {
+    this.operationType = operationType;
+  }
+
+  private void setData(byte[] data) {
+    this.data = data;
+  }
+
+  private void setJson(JSONObject json) {
+    this.json = json;
   }
 
   public enum OperationType {

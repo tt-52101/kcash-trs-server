@@ -4,10 +4,6 @@ import com.kcash.util.Base58;
 import com.kcash.util.MyByte;
 import com.kcash.util.Ripemd160;
 
-import org.bouncycastle.util.encoders.Hex;
-
-import java.io.IOException;
-
 public class ACTAddress {
   private String addressStr;
   private byte[] addressDecode;
@@ -79,13 +75,5 @@ public class ACTAddress {
       address21 = MyByte.builder().copy(addressDecode, 20).padding().getData();
     }
     return address21;
-  }
-
-  public static void main(String[] args) throws IOException {
-    ACTAddress a = new ACTAddress("Cd7GRUr3HpGTXBBpW2cWp4mRi38kZnhEo");
-    Hex.encode(a.addressDecode, System.out);
-    System.out.println(" ->address decode");
-    Hex.encode(Ripemd160.hash(a.addressDecode, 20), System.out);
-    System.out.println(" ->address hash");
   }
 }

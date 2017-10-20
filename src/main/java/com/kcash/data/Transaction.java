@@ -44,7 +44,7 @@ public class Transaction {
                     .add("alp_account", alpAccount)
                     .add("alp_inport_asset", alpInportAsset.toJSON())
                     .add("operations", operations.stream().map(Operation::toJSON).collect(toList()))
-                    .add("signatures", signatures.stream().map(MyByte::bytesToHex).collect(toList()))
+                    .add("signatures", signatures.stream().map(MyByte::toHex).collect(toList()))
                     .get().toJSONString();
     }
     return jsonStr;
@@ -196,13 +196,10 @@ public class Transaction {
   public enum VoteType {
     // 不投票
     VOTE_NONE("vote_none"),
-
     // 投所有人最多108人
     VOTE_ALL("vote_all"),
-
     // 随机投票，从支持者中随机选取一定的人数进行投票最多不超过36人
     VOTE_RANDOM("vote_radom"),
-
     // 根据已经选择的投票人进行投票，如果选择的投票人的publish_data中有其他投票策略加入到自己的投票策略中
     VORE_RECOMMENDED("vote_recommended"),;
 
@@ -211,25 +208,5 @@ public class Transaction {
     VoteType(String value) {
       this.value = value;
     }
-  }
-
-  public static void main(String[] args) throws Exception {
-    Transaction trx = new Transaction(
-        new ACTPrivateKey("5Jjxz2UYLfBoWkPgs2tDnC2XPEVfdxyFzACZoYWC7EXPyXG7z3P"),
-        10000L,
-        "ACTCd7GRUr3HpGTXBBpW2cWp4mRi38kZnhEo",
-//        "ACTCd7GRUr3HpGTXBBpW2cWp4mRi38kZnhEofffffffffffffffffffffffffffffff1",
-        "1234567890"
-    );
-    System.out.println(trx.toJSONString());
-
-    Transaction trx1 = new Transaction(
-        new ACTPrivateKey("5Jjxz2UYLfBoWkPgs2tDnC2XPEVfdxyFzACZoYWC7EXPyXG7z3P"),
-        CONTRACT.SMC_t,
-        "ACT3hzHVhrekqbhdGrC9quUW28nU4r2gBuGm",
-        1L,
-        1000L
-    );
-    System.out.println(trx1.toJSONString());
   }
 }

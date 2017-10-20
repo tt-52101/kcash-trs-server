@@ -75,10 +75,6 @@ public class MyByte {
     return copyBytes(src, src.length - l, l);
   }
 
-  public static byte[] paddingHeadAndTail(byte[] src) {
-    return builder().padding().copy(src).padding().getData();
-  }
-
   public static MyByte builder(int l) {
     return new MyByte(l);
   }
@@ -88,9 +84,9 @@ public class MyByte {
   }
 
 
-  final protected static char[] hexArray = "0123456789abcdef".toCharArray();
+  private final static char[] hexArray = "0123456789abcdef".toCharArray();
 
-  public static String bytesToHex(byte[] bytes) {
+  public static String toHex(byte[] bytes) {
     char[] hexChars = new char[bytes.length * 2];
     for (int j = 0; j < bytes.length; j++) {
       int v = bytes[j] & 0xFF;
@@ -98,6 +94,15 @@ public class MyByte {
       hexChars[j * 2 + 1] = hexArray[v & 0x0F];
     }
     return new String(hexChars);
+  }
+
+  public static byte[] formHex(String s) {
+    int l = s.length();
+    byte[] bytes = new byte[l / 2];
+    for (int i = 0; i < l; i += 2) {
+      bytes[i / 2] = (byte) (int) Integer.valueOf(s.substring(i, i + 2), 16);
+    }
+    return bytes;
   }
 
   public static class BuildList {
@@ -178,12 +183,7 @@ public class MyByte {
     }
 
     public BuildList copyByteString(String s) {
-      int l = s.length();
-      byte[] bytes = new byte[l / 2];
-      for (int i = 0; i < l; i += 2) {
-        bytes[i / 2] = (byte) (int) Integer.valueOf(s.substring(i, i + 2), 16);
-      }
-      list.add(bytes);
+      list.add(formHex(s));
       return this;
     }
 

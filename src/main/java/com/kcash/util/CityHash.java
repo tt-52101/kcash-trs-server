@@ -205,7 +205,9 @@ public class CityHash {
       v = weakHashLen32WithSeeds(s, pos + 0, v[1] * k1, x + w[0]);
       w = weakHashLen32WithSeeds(s, pos + 32, z + w[1], y + fetch64(s, pos + 16));
       {
-        long swap = z; z = x; x = swap;
+        long swap = z;
+        z = x;
+        x = swap;
       }
       pos += 64;
       len -= 64;
@@ -288,7 +290,9 @@ public class CityHash {
       v = weakHashLen32WithSeeds(s, pos + 0, v[1] * k1, x + w[0]);
       w = weakHashLen32WithSeeds(s, pos + 32, z + w[1], y + fetch64(s, pos + 16));
       {
-        long swap = z; z = x; x = swap;
+        long swap = z;
+        z = x;
+        x = swap;
       }
       pos += 64;
       x = rotate(x + y + v[0] + fetch64(s, pos + 8), 37) * k1;
@@ -299,7 +303,9 @@ public class CityHash {
       v = weakHashLen32WithSeeds(s, pos, v[1] * k1, x + w[0]);
       w = weakHashLen32WithSeeds(s, pos + 32, z + w[1], y + fetch64(s, pos + 16));
       {
-        long swap = z; z = x; x = swap;
+        long swap = z;
+        z = x;
+        x = swap;
       }
       pos += 64;
       len -= 128;

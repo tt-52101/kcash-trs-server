@@ -32,7 +32,6 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.PublicKey;
@@ -216,47 +215,5 @@ public class ECC {
       compEnc[0] = (byte) (yBit ? 0x03 : 0x02);
       return CURVE.getCurve().decodePoint(compEnc);
     }
-  }
-
-
-  public static void main(String[] args) throws NoSuchAlgorithmException {
-    byte[] otherPubKey =
-        MyByte.builder().copyByteString("02a1bbab1a1fad23c1a0a40464d37f41e62694b19b66f032dc8248b982f4a93bae").getData();
-    System.out.println("other public key: " + MyByte.bytesToHex(otherPubKey));
-    ACTPrivateKey privateKey = new ACTPrivateKey(MyByte.builder().copyByteString(
-        "6f38d0d1b8d44b90a361c43d8b03b54a6676788272aedf54509d0e3c0e608711").getData());
-    byte[] myPubKey = privateKey.getPublicKey(true);
-    System.out.println("   my public key: " + MyByte.bytesToHex(myPubKey));
-    byte[] password1 = generateSharedSecret(
-        privateKey.getECPrivateKey(),
-        loadPublicKey(otherPubKey));
-    System.out.println("   my shared secret: " + MyByte.bytesToHex(password1));
-    password1 = SHA._512hash(
-        MyByte.builder().copy(password1, 1, 31)
-              .copy(otherPubKey, 32)
-              .getData());
-    System.out.println("   my shared secret: " + MyByte.bytesToHex(password1));
-
-    byte[] password = MyByte.builder().copyByteString(
-        "95836531154f5b8cff3f4af7729baa3740b4695814dafb38dc542ec0cf78f7648f94549c66811f29f2c2f9386e55c0c81014b216c0127a6a42ac0d213c852189")
-                            .getData();
-    System.out.println("right shared secret: " + MyByte.bytesToHex(password));
-    byte[] hashed = SHA._256hash(password);
-    System.out.println("正确密钥: " + MyByte.bytesToHex(hashed));
-    byte[] content = new byte[]{49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54};
-//    byte[] iv = new byte[]{48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 49, 49, 49, 49, 49, 49};
-    long[] cityHash = CityHash.cityHash128(password, 0, password.length);
-    byte[] testCityHash = MyByte.builder().copy(cityHash[1]).copy(cityHash[0]).getData();
-    System.out.println("   my IV: " + MyByte.bytesToHex(testCityHash));
-    byte[] iv = MyByte.builder().copyByteString("9a32cf9ace5d95c412ed3eae59d5aa56").getData();
-    System.out.println("right IV: " + MyByte.bytesToHex(iv));
-    byte[] encoded = AES.encode(hashed, content, iv);
-    System.out.println("我的密文: " + MyByte.bytesToHex(encoded));
-    encoded = new byte[]{-118, -60, -89, 31, -121, -61, -41, 118, 102, -78, -86, -80, 21, -107, 26, 57,};
-    System.out.println("正确密文: " + MyByte.bytesToHex(encoded));
-    byte[] decoded = AES.decode(hashed, encoded, iv);
-    System.out.println("我的还原: " + MyByte.bytesToHex(decoded));
-    System.out.println("正确原文: " + MyByte.bytesToHex(content));
-    System.out.println("正确原文字符: " + new String(content));
   }
 }

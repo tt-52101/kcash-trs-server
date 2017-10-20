@@ -2,9 +2,6 @@ package com.kcash.blockchain;
 
 import com.kcash.util.MyByte;
 
-import lombok.Data;
-
-@Data
 public class TrxMessage {
   private int size;
   private int msgType;
