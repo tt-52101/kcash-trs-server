@@ -75,8 +75,8 @@ public class ECC {
     BigInteger[] sign = _signCore(prv.getD(), data);
     return MyByte.builder()
                  .copy((byte) (generateSignV(prv.getPublicKey(false), data, sign[0], sign[1]) + 31))
-                 .copy(MyByte.trunk(sign[0].toByteArray()))
-                 .copy(MyByte.trunk(sign[1].toByteArray()))
+                 .copy(MyByte.copyBytesR(sign[0].toByteArray(), 32))
+                 .copy(MyByte.copyBytesR(sign[1].toByteArray(), 32))
                  .getData();
   }
 

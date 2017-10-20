@@ -3,6 +3,7 @@ package com.kcash.util;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MyByte {
   private byte[] data;
@@ -44,27 +45,18 @@ public class MyByte {
     return tar;
   }
 
-  private static byte[] convert(long d) {
-    byte[] src = new byte[8];
-    int tl = 0;
-    for (int i = 7; i >= 0; --i) {
-      src[i] = (byte) ((d >>> i * 8) & 0xff);
-      if (src[i] != 0) {
-        ++tl;
-      }
-    }
-    byte[] tar = new byte[tl];
-    System.arraycopy(src, 0, tar, 0, tl);
-    return tar;
+  public static byte[] trunk(byte[] src) {
+    return trunk(src, src.length);
   }
 
-  public static byte[] trunk(byte[] src) {
-    for (int i = 0; i < src.length; i++) {
+  public static byte[] trunk(byte[] src, int d) {
+    int i = 0;
+    for (; i < d; i++) {
       if (src[i] != 0) {
-        return copyBytes(src, i, src.length - i);
+        break;
       }
     }
-    return new byte[0];
+    return copyBytes(src, i, src.length - i);
   }
 
   public static byte[] copyBytes(byte[] src) {
@@ -77,6 +69,10 @@ public class MyByte {
 
   public static byte[] copyBytes(byte[] src, int s, int l) {
     return new MyByte(l).copy(src, s, l).getData();
+  }
+
+  public static byte[] copyBytesR(byte[] src, int l) {
+    return copyBytes(src, src.length - l, l);
   }
 
   public static byte[] paddingHeadAndTail(byte[] src) {
@@ -146,8 +142,14 @@ public class MyByte {
     }
 
     public BuildList copy(List<byte[]> src) {
-      copy(src.size(), 1);
+      copySize(src.size());
       src.forEach(this::copy);
+      return this;
+    }
+
+    public BuildList copy(Map<byte[], Long> src) {
+      copySize(src.size());
+      src.forEach((k, v) -> copy(k).copy(v));
       return this;
     }
 
@@ -167,6 +169,14 @@ public class MyByte {
       return this;
     }
 
+    public BuildList copy(String src) {
+      if (src == null || src.length() == 0) {
+        return padding();
+      } else {
+        return copyVector(src.getBytes());
+      }
+    }
+
     public BuildList copyByteString(String s) {
       int l = s.length();
       byte[] bytes = new byte[l / 2];
@@ -178,11 +188,17 @@ public class MyByte {
     }
 
     public BuildList copyVector(byte[] src) {
-      return copyDigit(src.length).copy(src, src.length);
+      return copySize(src.length).copy(src, src.length);
     }
 
-    public BuildList copyDigit(long d) {
-      return copy(convert(d));
+    public BuildList copySize(long l) {
+      do {
+        int b = (int) l & 0x7f;
+        l >>= 7;
+        b |= (l > 0 ? 1 : 0) << 7;
+        copy((byte) b);
+      } while (l > 0);
+      return this;
     }
   }
 }

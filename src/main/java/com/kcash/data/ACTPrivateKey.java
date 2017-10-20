@@ -10,6 +10,8 @@ import org.bouncycastle.jce.interfaces.ECPrivateKey;
 
 import java.math.BigInteger;
 
+import static com.kcash.data.Transaction.ACT_SYMBOL;
+
 public class ACTPrivateKey {
 
   private String keyStr;
@@ -18,6 +20,7 @@ public class ACTPrivateKey {
   private ECPrivateKey ecPrivateKey;
   private byte[] publicKey;
   private byte[] publicKeyCompressed;
+  private String publicKeyStr;
   private ACTAddress actAddress;
 
   public ACTPrivateKey(String keyStr) {
@@ -38,7 +41,7 @@ public class ACTPrivateKey {
 
   public ACTPrivateKey() {
     d = ((ECPrivateKey) ECC.generate().getPrivate()).getD();
-    encoded = MyByte.trunk(d.toByteArray());
+    encoded = MyByte.copyBytesR(d.toByteArray(), 32);
   }
 
   private boolean check(byte[] wifBytes) {
@@ -96,6 +99,20 @@ public class ACTPrivateKey {
     return key;
   }
 
+  public String getPublicKeyStr() {
+    if (publicKeyStr == null) {
+      publicKeyStr = Base58.encode(
+          MyByte.builder()
+                .copy(getPublicKey(true))
+                .copy(Ripemd160.hash(getPublicKey(true)), 4)
+                .getData());
+    }
+    return publicKeyStr;
+  }
+
+  public String getPublicKeyStringWithSymbol() {
+    return ACT_SYMBOL + getPublicKeyStr();
+  }
 
   public ACTAddress getAddress() {
     if (actAddress == null) {

@@ -13,6 +13,7 @@ public class ACTAddress {
   private byte[] addressDecode;
 
   private byte[] address21;
+  private byte[] address20;
 
   /**
    * 字符串转地址
@@ -26,10 +27,9 @@ public class ACTAddress {
   }
 
   public ACTAddress(byte[] id) {
-    byte[] rip160Hash = Ripemd160.hash(id);
     addressDecode = MyByte.builder()
                           .copy(id)
-                          .copy(rip160Hash, 4)
+                          .copy(Ripemd160.hash(id), 4)
                           .getData();
     addressStr = Base58.encode(addressDecode);
   }
@@ -56,11 +56,22 @@ public class ACTAddress {
   }
 
   public String getAddressStrStartWithSymbol() {
-    return Transaction.ASSET_SYMBOL + addressStr;
+    return Transaction.ACT_SYMBOL + addressStr;
+  }
+
+  public String getContractStrStartWithSymbol() {
+    return Transaction.CONTRACT_SYMBOL + addressStr;
   }
 
   public byte[] getAddressDecode() {
     return addressDecode;
+  }
+
+  public byte[] getAddress20() {
+    if (address20 == null) {
+      address20 = MyByte.builder().copy(addressDecode, 20).getData();
+    }
+    return address20;
   }
 
   public byte[] getAddress21() {

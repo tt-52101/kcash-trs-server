@@ -11,7 +11,7 @@ public class AES {
 
   static {
     try {
-      CIPHER = Cipher.getInstance("AES/CFB/NoPadding", new BouncyCastleProvider());
+      CIPHER = Cipher.getInstance("AES/CBC/NoPadding", new BouncyCastleProvider());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

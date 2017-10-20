@@ -5,9 +5,6 @@ import com.kcash.util.JSON;
 import com.kcash.util.MyByte;
 import com.kcash.util.SHA;
 
-import org.bouncycastle.util.encoders.Hex;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,24 +27,22 @@ public class Transaction {
   private ACTAddress toAddress;
   private String jsonStr;
   //
-  public static final String ASSET_SYMBOL = "ACT";
+  public static final String ACT_SYMBOL = "ACT";
+  public static final String CONTRACT_SYMBOL = "CON";
   private static final byte[] CHAIN_ID =
       MyByte.builder()
-      .copyByteString("6701c01c6042098645e0ed939fa78649bd10c2877af609fa0cad12da62690f97") // 测试链ID
+            .copyByteString("6701c01c6042098645e0ed939fa78649bd10c2877af609fa0cad12da62690f97") // 测试链ID
 //      .copyByteString("6a1cb528f6e797e58913bff7a45cdd4709be75114ccd1ccb0e611b808f4d1b75") // 正式链ID
             .getData();
-  private static final Long requiredFees = 1000L; // 转账手续费 0.01 * 100000
-  private static final Long transactionExpiration = 3_600_000L; // 3,600,000ms / 1h
+  public static final Long requiredFees = 1000L; // 转账手续费 0.01 * 100000
+  private static final Long _transactionExpiration = 3_600_000L; // 3,600,000ms / 1h
 
   public String toJSONString() {
     if (jsonStr == null) {
       jsonStr = JSON.build()
                     .add("expiration", new Date(expiration))
                     .add("alp_account", alpAccount)
-                    .add("alp_inport_asset", JSON.build()
-                                                 .add("asset_id", alpInportAsset.getAssetId())
-                                                 .add("amount", alpInportAsset.getAmount())
-                                                 .get())
+                    .add("alp_inport_asset", alpInportAsset.toJSON())
                     .add("operations", operations.stream().map(Operation::toJSON).collect(toList()))
                     .add("signatures", signatures.stream().map(MyByte::bytesToHex).collect(toList()))
                     .get().toJSONString();
@@ -69,9 +64,9 @@ public class Transaction {
     if (toSignBytes == null) {
       toSignBytes = MyByte.builder()
                           .copy(expiration / 1000L, 4)
-//                          .copy(1507706086, 4) //test expiration
+//                          .copy(1508401006, 4) //test expiration
                           .copy(0, 1) // reserved optional<uint64_t> wtf?
-                          .copy(alpAccountBytesToSign())
+                          .copy(alpAccount)
                           .copy(alpInportAsset.toBytes())
                           .copy(operations.stream().map(Operation::toBytes).collect(toList()))
                           .copy(resultTrxType._byte)
@@ -82,23 +77,37 @@ public class Transaction {
     return toSignBytes;
   }
 
-  private byte[] alpAccountBytesToSign() {
-    return alpAccount.length() == 0 ? new byte[]{0} : MyByte.builder().copyVector(alpAccount.getBytes()).getData();
-  }
-
   public Transaction(
       ACTPrivateKey actPrivateKey, // 转出者的私钥
       Long amount,           // 转出数额 * 100000
       String toAddressStr,   // 目标地址
       String remark) {
-    this.checkArguments(actPrivateKey, amount, toAddressStr, remark);
+    this(actPrivateKey, amount, toAddressStr);
+    this.setTransferOperations(amount, remark);
+    this.sign();
+  }
+
+  public Transaction(
+      ACTPrivateKey actPrivateKey,
+      CONTRACT contract,
+      String toAddressStr,
+      long amount,
+      long maxCallContractCost) {
+    this(actPrivateKey, amount, toAddressStr);
+    this.setContractTransferOperations(contract, toAddressStr, amount, maxCallContractCost);
+    this.sign();
+  }
+
+  private Transaction(
+      ACTPrivateKey actPrivateKey, // 转出者的私钥
+      Long amount,          // 转出数额 * 100000
+      String toAddressStr   /* 目标地址*/) {
+    this.checkArguments(actPrivateKey, amount, toAddressStr);
     this.actPrivateKey = actPrivateKey;
     this.voteType = VoteType.VOTE_NONE; // 最简方式
-    this.expiration = System.currentTimeMillis() + transactionExpiration;
+    this.expiration = System.currentTimeMillis() + _transactionExpiration;
     this.resultTrxType = ResultTransactionType.ORIGIN_TRANSACTION;
     this.setAddress(toAddressStr, amount);
-    this.setOperations(amount, remark);
-    this.sign();
   }
 
   private void sign() {
@@ -106,22 +115,18 @@ public class Transaction {
     this.signatures.add(ECC.signCompact(actPrivateKey, SHA._256hash(toSign())));
   }
 
-  private void checkArguments(ACTPrivateKey actPrivateKey, Long amount, String toAddressStr, String remark) {
+  private void checkArguments(ACTPrivateKey actPrivateKey, long amount, String toAddressStr) {
     if (actPrivateKey == null) {
       throw new RuntimeException("param actPrivateKey is not present");
-    } else if (amount == null) {
-      throw new RuntimeException("param amount is not present");
     } else if (amount <= 0) {
       throw new RuntimeException("param amount is less than or equal to 0");
     } else if (toAddressStr == null) {
       throw new RuntimeException("param toAddressStr is not present");
-    } else if (remark != null && remark.getBytes().length > 40) {
-      throw new RuntimeException("param remark's byte length must be smaller than or equal to 40");
     }
   }
 
   private void setAddress(String toAddressStr, Long amount) {
-    if (toAddressStr.startsWith(ASSET_SYMBOL)) {
+    if (toAddressStr.startsWith(ACT_SYMBOL)) {
       toAddressStr = toAddressStr.substring(3);
     } else {
       throw new RuntimeException("地址错误");
@@ -132,7 +137,7 @@ public class Transaction {
       if (sub.equals("ffffffffffffffffffffffffffffffff")) {
         setNoneAlp();
       } else {
-        alpAccount = ASSET_SYMBOL + toAddressStr;
+        alpAccount = ACT_SYMBOL + toAddressStr;
         alpInportAsset = new Asset(amount);
       }
       toAddressStr = toAddressStr.substring(0, toAddressStr.length() - 32);
@@ -147,13 +152,34 @@ public class Transaction {
     alpInportAsset = new Asset(0L);
   }
 
-  private void setOperations(long amount, String remark) {
+  private void setTransferOperations(long amount, String remark) {
     operations = new ArrayList<>();
     operations.add(Operation.createWithdraw(actPrivateKey, amount + requiredFees));
     operations.add(Operation.createDeposit(toAddress, amount));
     if (remark != null && remark.length() > 0) {
       operations.add(Operation.createIMessage(remark));
     }
+  }
+
+  private void setContractTransferOperations(
+      CONTRACT contract,
+      String toAddress,
+      long amount,
+      long maxCallContractCost) {
+    setCallContractOperations(
+        contract,
+        CONTRACT.TRANSFER_METHOD,
+        CONTRACT.makeTransferArgs(toAddress, amount),
+        new Asset(maxCallContractCost));
+  }
+
+  private void setCallContractOperations(
+      CONTRACT contract,
+      String method,
+      String args,
+      Asset costLimit) {
+    operations = new ArrayList<>();
+    operations.add(Operation.createCallContract(actPrivateKey, contract, method, args, costLimit));
   }
 
   private enum ResultTransactionType {
@@ -188,19 +214,23 @@ public class Transaction {
     }
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws Exception {
     Transaction trx = new Transaction(
         new ACTPrivateKey("5Jjxz2UYLfBoWkPgs2tDnC2XPEVfdxyFzACZoYWC7EXPyXG7z3P"),
-        1L,
+        10000L,
         "ACTCd7GRUr3HpGTXBBpW2cWp4mRi38kZnhEo",
 //        "ACTCd7GRUr3HpGTXBBpW2cWp4mRi38kZnhEofffffffffffffffffffffffffffffff1",
         "1234567890"
     );
-    Hex.encode(trx.toSignBytes, System.out);
-    System.out.println();
-    Hex.encode(SHA._256hash(trx.toSignBytes), System.out);
-    System.out.println();
+    System.out.println(trx.toJSONString());
 
-//    System.out.println(trx.actPrivateKey.verify(trx.toBytes(), sign));
+    Transaction trx1 = new Transaction(
+        new ACTPrivateKey("5Jjxz2UYLfBoWkPgs2tDnC2XPEVfdxyFzACZoYWC7EXPyXG7z3P"),
+        CONTRACT.SMC_t,
+        "ACT3hzHVhrekqbhdGrC9quUW28nU4r2gBuGm",
+        1L,
+        1000L
+    );
+    System.out.println(trx1.toJSONString());
   }
 }

@@ -4,8 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.kcash.util.JSON;
 import com.kcash.util.MyByte;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import lombok.Data;
 
+import static com.kcash.data.Operation.OperationType.CALL_CONTRACT_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.DEPOSIT_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.IMESSAGE_MEMO_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.WITHDRAW_OP_TYPE;
@@ -32,10 +38,10 @@ public class Operation {
     return json;
   }
 
-  public static Operation createWithdraw(ACTPrivateKey ACTPrivateKey, long amount) {
+  public static Operation createWithdraw(ACTPrivateKey actPrivateKey, long amount) {
     Operation operation = new Operation();
     operation.setOperationType(WITHDRAW_OP_TYPE);
-    byte[] balanceId = new WithdrawCondition(ACTPrivateKey.getAddress()).getBalanceId();
+    byte[] balanceId = new WithdrawCondition(actPrivateKey.getAddress()).getBalanceId();
     operation.setData(
         MyByte.builder()
               .copy(balanceId)
@@ -103,6 +109,54 @@ public class Operation {
             .get());
 
     return operation;
+  }
+
+  public static Operation createCallContract(
+      ACTPrivateKey actPrivateKey,
+      CONTRACT contract,
+      String method,
+      String args,
+      Asset costLimit) {
+    Map<byte[], Long> balances = new HashMap<>();
+    Asset transactionFee = new Asset(Transaction.requiredFees);
+    balances.put(new WithdrawCondition(actPrivateKey.getAddress()).getBalanceId(),
+                 costLimit.getAmount() + transactionFee.getAmount());
+    Operation operation = new Operation();
+    operation.setOperationType(CALL_CONTRACT_OP_TYPE);
+    operation.setData(
+        MyByte.builder()
+              .copy(actPrivateKey.getPublicKey(true))
+              .copy(balances)
+              .copy(contract.getActAddress().getAddress20())
+              .copy(costLimit.toBytes())
+              .copy(transactionFee.toBytes())
+              .copy(method)
+              .copy(args)
+              .getData());
+    operation.setJson(
+        JSON.build()
+            .add("type", CALL_CONTRACT_OP_TYPE.name().toLowerCase())
+            .add("data", JSON.build()
+                             .add("caller", actPrivateKey.getPublicKeyStringWithSymbol())
+                             .add("balances", mapFlatToList(balances))
+                             .add("contract", contract.getActAddress().getAddressStrStartWithSymbol())
+                             .add("costlimit", costLimit.toJSON())
+                             .add("transaction_fee", transactionFee.toJSON())
+                             .add("method", method)
+                             .add("args", args)
+                             .get())
+            .get());
+    return operation;
+  }
+
+  private static List<String[]> mapFlatToList(Map<byte[], Long> balances) {
+    List<String[]> result = new ArrayList<>();
+    balances.forEach((k, v) -> result.add(
+        new String[]{
+            new ACTAddress(k).getAddressStrStartWithSymbol(),
+            v.toString()
+        }));
+    return result;
   }
 
   public enum OperationType {

@@ -1,14 +1,15 @@
 package com.kcash.data;
 
+import com.alibaba.fastjson.JSONObject;
+import com.kcash.util.JSON;
 import com.kcash.util.MyByte;
-
-import lombok.Data;
 
 public class Asset {
   private long amount; // c++ __int64 8bit
   private int assetId; // c++ int 4bit
   //
   private byte[] toBytes;
+  private JSONObject json;
 
   public byte[] toBytes() {
     if (toBytes == null) {
@@ -18,6 +19,16 @@ public class Asset {
                       .getData();
     }
     return toBytes;
+  }
+
+  public JSONObject toJSON() {
+    if (json == null) {
+      json = JSON.build()
+                 .add("amount", amount)
+                 .add("asset_id", assetId)
+                 .get();
+    }
+    return json;
   }
 
   public Asset(long amount) {
