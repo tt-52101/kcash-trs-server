@@ -133,7 +133,6 @@ public class Transaction {
     }
     if (toAddressStr.length() >= 64) { //获取子地址
       String sub = toAddressStr.substring(toAddressStr.length() - 32);
-      System.out.println(sub);
       if (sub.equals("ffffffffffffffffffffffffffffffff")) {
         setNoneAlp();
       } else {

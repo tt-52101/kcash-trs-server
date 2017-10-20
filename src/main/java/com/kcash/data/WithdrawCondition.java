@@ -4,11 +4,9 @@ import com.kcash.util.MyByte;
 import com.kcash.util.Ripemd160;
 import com.kcash.util.SHA;
 
-import org.bouncycastle.util.encoders.Hex;
-
 public class WithdrawCondition {
   private int assetId; // fc::singed_int/int
-  private int slateId; //
+  private long slateId; // long long
   private WithdrawConditionType type; // uint8_t
   private WithdrawBalanceType balanceType; // uint8_t
   private byte[] data; // vector<char>
@@ -27,8 +25,7 @@ public class WithdrawCondition {
   public byte[] toBytes() {
     if (bytes == null) {
       bytes = MyByte.builder()
-                    .padding()
-                    .copy(assetId)
+                    .copySize(assetId)
                     .copy(slateId)
                     .copy(type._byte)
                     .copy(balanceType._byte)
@@ -49,7 +46,7 @@ public class WithdrawCondition {
     return assetId;
   }
 
-  public int getSlateId() {
+  public long getSlateId() {
     return slateId;
   }
 
@@ -89,22 +86,9 @@ public class WithdrawCondition {
 
   public static void main(String[] args) throws Exception {
     ACTAddress address = new ACTAddress("Cd7GRUr3HpGTXBBpW2cWp4mRi38kZnhEo");
-    WithdrawCondition withdrawCondition = new WithdrawCondition(address);
-    Hex.encode(withdrawCondition.getBalanceId(), System.out);
-    System.out.println(" ->测试摘要算法");
-    Thread.sleep(10);
-    int[] b = {0xbf, 0x02, 0xb4, 0x4c,
-               0xfe, 0x04, 0x96, 0xc0,
-               0x58, 0xec, 0xee, 0x82,
-               0x30, 0x7f, 0x8a, 0xa9,
-               0x0c, 0xdb, 0xf7, 0x83,};
-    byte[] c = new byte[b.length];
-    for (int i = 0; i < b.length; i++) {
-      c[i] = (byte) b[i];
-    }
-    Hex.encode(c, System.err);
-    System.err.println(" ->正确结果");
-//    System.out.println(" " + Arrays.toString(c));
+    WithdrawCondition c = new WithdrawCondition(address);
+    System.out.println(MyByte.bytesToHex(c.getBalanceId()) + " ->测试摘要算法");
+    System.err.println("bf02b44cfe0496c058ecee82307f8aa90cdbf783 ->正确结果");
   }
 
 }
