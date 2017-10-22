@@ -51,8 +51,7 @@ public class CityHash {
   }
 
   private static int toIntLE(byte[] b, int i) {
-    return (((b[i + 3] & 255) << 24) + ((b[i + 2] & 255) << 16) + ((b[i + 1] & 255) << 8) + ((b[i]
-        & 255)));
+    return (((b[i + 3] & 255) << 24) + ((b[i + 2] & 255) << 16) + ((b[i + 1] & 255) << 8) + ((b[i] & 255)));
   }
 
   private static long fetch64(byte[] s, int pos) {

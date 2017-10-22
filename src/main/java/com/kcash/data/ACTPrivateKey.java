@@ -48,7 +48,7 @@ public class ACTPrivateKey {
     }
     byte[] checksum = SHA._256hash(MyByte.copyBytes(wifBytes, 33));
     return checksum(wifBytes, checksum) ||
-        checksum(wifBytes, SHA._256hash(checksum));
+           checksum(wifBytes, SHA._256hash(checksum));
   }
 
   private boolean checksum(byte[] wifBytes, byte[] checksum) {

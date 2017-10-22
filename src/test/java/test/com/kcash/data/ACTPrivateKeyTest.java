@@ -2,7 +2,6 @@ package test.com.kcash.data;
 
 import com.kcash.data.ACTPrivateKey;
 import com.kcash.util.MyByte;
-
 import org.junit.Test;
 
 public class ACTPrivateKeyTest {
