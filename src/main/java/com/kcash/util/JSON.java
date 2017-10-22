@@ -1,7 +1,6 @@
 package com.kcash.util;
 
 import com.alibaba.fastjson.JSONObject;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;

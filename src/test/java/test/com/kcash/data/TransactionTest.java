@@ -3,7 +3,6 @@ package test.com.kcash.data;
 import com.kcash.data.ACTPrivateKey;
 import com.kcash.data.CONTRACT;
 import com.kcash.data.Transaction;
-
 import org.junit.Test;
 
 public class TransactionTest {

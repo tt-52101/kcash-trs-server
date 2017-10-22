@@ -2,7 +2,7 @@ package com.kcash.util;
 
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 
-public class Ripemd160 {
+public class RIPEMD160 {
   public static byte[] hash(byte[] orig) {
     return hash(orig, orig.length);
   }

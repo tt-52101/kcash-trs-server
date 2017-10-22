@@ -1,13 +1,12 @@
 package com.kcash.util;
 
-import org.bouncycastle.util.encoders.Base64;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
+import org.bouncycastle.util.encoders.Base64;
 
 public enum RPC {
   INFO(2),

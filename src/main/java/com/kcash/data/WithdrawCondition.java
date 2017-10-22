@@ -1,7 +1,7 @@
 package com.kcash.data;
 
 import com.kcash.util.MyByte;
-import com.kcash.util.Ripemd160;
+import com.kcash.util.RIPEMD160;
 import com.kcash.util.SHA;
 
 public class WithdrawCondition {
@@ -37,7 +37,7 @@ public class WithdrawCondition {
 
   public byte[] getBalanceId() {
     if (id == null) {
-      id = Ripemd160.hash(SHA._512hash(toBytes()));
+      id = RIPEMD160.hash(SHA._512hash(toBytes()));
     }
     return id;
   }

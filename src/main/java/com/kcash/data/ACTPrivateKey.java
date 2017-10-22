@@ -1,16 +1,14 @@
 package com.kcash.data;
 
+import static com.kcash.data.Transaction.ACT_SYMBOL;
+
 import com.kcash.util.Base58;
 import com.kcash.util.ECC;
 import com.kcash.util.MyByte;
-import com.kcash.util.Ripemd160;
+import com.kcash.util.RIPEMD160;
 import com.kcash.util.SHA;
-
-import org.bouncycastle.jce.interfaces.ECPrivateKey;
-
 import java.math.BigInteger;
-
-import static com.kcash.data.Transaction.ACT_SYMBOL;
+import org.bouncycastle.jce.interfaces.ECPrivateKey;
 
 public class ACTPrivateKey {
 
@@ -50,7 +48,7 @@ public class ACTPrivateKey {
     }
     byte[] checksum = SHA._256hash(MyByte.copyBytes(wifBytes, 33));
     return checksum(wifBytes, checksum) ||
-           checksum(wifBytes, SHA._256hash(checksum));
+        checksum(wifBytes, SHA._256hash(checksum));
   }
 
   private boolean checksum(byte[] wifBytes, byte[] checksum) {
@@ -104,7 +102,7 @@ public class ACTPrivateKey {
       publicKeyStr = Base58.encode(
           MyByte.builder()
                 .copy(getPublicKey(true))
-                .copy(Ripemd160.hash(getPublicKey(true)), 4)
+                .copy(RIPEMD160.hash(getPublicKey(true)), 4)
                 .getData());
     }
     return publicKeyStr;
@@ -116,7 +114,7 @@ public class ACTPrivateKey {
 
   public ACTAddress getAddress() {
     if (actAddress == null) {
-      actAddress = new ACTAddress(Ripemd160.hash(SHA._512hash(getPublicKey(true))));
+      actAddress = new ACTAddress(RIPEMD160.hash(SHA._512hash(getPublicKey(true))));
     }
     return actAddress;
   }

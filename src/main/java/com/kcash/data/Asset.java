@@ -15,7 +15,7 @@ public class Asset {
     if (toBytes == null) {
       toBytes = MyByte.builder()
                       .copy(amount)
-                      .copy(assetId, 1)
+                      .copySize(assetId)
                       .getData();
     }
     return toBytes;

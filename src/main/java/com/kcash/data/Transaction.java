@@ -1,15 +1,14 @@
 package com.kcash.data;
 
+import static java.util.stream.Collectors.toList;
+
 import com.kcash.util.ECC;
 import com.kcash.util.JSON;
 import com.kcash.util.MyByte;
 import com.kcash.util.SHA;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 
 public class Transaction {
@@ -103,6 +102,8 @@ public class Transaction {
       Long amount,          // 转出数额 * 100000
       String toAddressStr   /* 目标地址*/) {
     this.checkArguments(actPrivateKey, amount, toAddressStr);
+    this.operations = new ArrayList<>();
+    this.signatures = new ArrayList<>();
     this.actPrivateKey = actPrivateKey;
     this.voteType = VoteType.VOTE_NONE; // 最简方式
     this.expiration = System.currentTimeMillis() + _transactionExpiration;
@@ -111,7 +112,6 @@ public class Transaction {
   }
 
   private void sign() {
-    this.signatures = new ArrayList<>();
     this.signatures.add(ECC.signCompact(actPrivateKey, SHA._256hash(toSign())));
   }
 
@@ -152,7 +152,6 @@ public class Transaction {
   }
 
   private void setTransferOperations(long amount, String remark) {
-    operations = new ArrayList<>();
     operations.add(Operation.createWithdraw(actPrivateKey, amount + requiredFees));
     operations.add(Operation.createDeposit(toAddress, amount));
     if (remark != null && remark.length() > 0) {
@@ -177,7 +176,6 @@ public class Transaction {
       String method,
       String args,
       Asset costLimit) {
-    operations = new ArrayList<>();
     operations.add(Operation.createCallContract(actPrivateKey, contract, method, args, costLimit));
   }
 

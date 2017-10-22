@@ -45,11 +45,15 @@ public class MyByte {
     return tar;
   }
 
-  public static byte[] trunk(byte[] src) {
-    return trunk(src, src.length);
+  public static byte[] trim(byte[] src) {
+    return trimR(trimL(src));
   }
 
-  public static byte[] trunk(byte[] src, int d) {
+  public static byte[] trimL(byte[] src) {
+    return trimL(src, src.length);
+  }
+
+  public static byte[] trimL(byte[] src, int d) {
     int i = 0;
     for (; i < d; i++) {
       if (src[i] != 0) {
@@ -58,6 +62,22 @@ public class MyByte {
     }
     return copyBytes(src, i, src.length - i);
   }
+
+  public static byte[] trimR(byte[] src) {
+    return trimR(src, src.length);
+  }
+
+  public static byte[] trimR(byte[] src, int d) {
+    int i = src.length - 1;
+    d = src.length - d;
+    for (; i >= d; i--) {
+      if (src[i] != 0) {
+        break;
+      }
+    }
+    return copyBytes(src, i + 1);
+  }
+
 
   public static byte[] copyBytes(byte[] src) {
     return copyBytes(src, 0, src.length);
@@ -100,7 +120,8 @@ public class MyByte {
     int l = s.length();
     byte[] bytes = new byte[l / 2];
     for (int i = 0; i < l; i += 2) {
-      bytes[i / 2] = (byte) (int) Integer.valueOf(s.substring(i, i + 2), 16);
+      bytes[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) +
+                             Character.digit(s.charAt(i + 1), 16));
     }
     return bytes;
   }

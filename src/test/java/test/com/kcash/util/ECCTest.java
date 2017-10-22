@@ -5,7 +5,6 @@ import com.kcash.util.CityHash;
 import com.kcash.util.ECC;
 import com.kcash.util.MyByte;
 import com.kcash.util.SHA;
-
 import org.junit.Test;
 
 public class ECCTest {

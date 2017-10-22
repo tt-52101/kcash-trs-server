@@ -2,7 +2,6 @@ package test.com.kcash.util;
 
 import com.kcash.util.CityHash;
 import com.kcash.util.MyByte;
-
 import org.junit.Test;
 
 public class CityHashTest {
@@ -16,7 +15,6 @@ public class CityHashTest {
     long[] cityHash = CityHash.cityHash128(password, 0, password.length);
     byte[] testCityHash = MyByte.builder().copy(cityHash[1]).copy(cityHash[0]).getData();
     System.out.println("   my: " + MyByte.toHex(testCityHash));
-    byte[] iv = MyByte.builder().copyByteString("9a32cf9ace5d95c412ed3eae59d5aa56").getData();
-    System.out.println("right: " + MyByte.toHex(iv));
+    System.out.println("right: 9a32cf9ace5d95c412ed3eae59d5aa56");
   }
 }

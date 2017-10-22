@@ -2,7 +2,7 @@ package com.kcash.data;
 
 import com.kcash.util.Base58;
 import com.kcash.util.MyByte;
-import com.kcash.util.Ripemd160;
+import com.kcash.util.RIPEMD160;
 
 public class ACTAddress {
   private String addressStr;
@@ -23,10 +23,7 @@ public class ACTAddress {
   }
 
   public ACTAddress(byte[] id) {
-    addressDecode = MyByte.builder()
-                          .copy(id)
-                          .copy(Ripemd160.hash(id), 4)
-                          .getData();
+    addressDecode = MyByte.builder().copy(id).copy(RIPEMD160.hash(id), 4).getData();
     addressStr = Base58.encode(addressDecode);
   }
 
@@ -34,7 +31,7 @@ public class ACTAddress {
     if (addressDecode.length != 24) {
       return false;
     }
-    byte[] checksum = Ripemd160.hash(addressDecode, 20);
+    byte[] checksum = RIPEMD160.hash(addressDecode, 20);
     for (int i = 0; i < 4; i++) {
       if (addressDecode[20 + i] != checksum[i]) {
         return false;

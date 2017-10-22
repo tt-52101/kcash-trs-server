@@ -19,7 +19,8 @@ public enum CONTRACT {
   private static final BigDecimal _2bd = new BigDecimal(Math.pow(10, _scale - 1));
 
   public static String makeTransferArgs(String toAddress, long amount) {
-    return toAddress + "|" + new BigDecimal(amount).divide(_2bd, _scale, BigDecimal.ROUND_DOWN).stripTrailingZeros();
+    return toAddress + "|" + new BigDecimal(amount).divide(_2bd, _scale, BigDecimal.ROUND_DOWN)
+                                                   .stripTrailingZeros();
   }
 
   private String contractName;

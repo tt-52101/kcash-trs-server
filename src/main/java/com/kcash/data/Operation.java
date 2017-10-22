@@ -1,18 +1,17 @@
 package com.kcash.data;
 
-import com.alibaba.fastjson.JSONObject;
-import com.kcash.util.JSON;
-import com.kcash.util.MyByte;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static com.kcash.data.Operation.OperationType.CALL_CONTRACT_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.DEPOSIT_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.IMESSAGE_MEMO_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.WITHDRAW_OP_TYPE;
+
+import com.alibaba.fastjson.JSONObject;
+import com.kcash.util.JSON;
+import com.kcash.util.MyByte;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Operation {
   private OperationType operationType; // 8bit
@@ -77,8 +76,7 @@ public class Operation {
                                                    .add("type", condition.getType().name().toLowerCase())
                                                    .add("balance_type", condition.getBalanceType().name().toLowerCase())
                                                    .add("data", JSON.build()
-                                                                    .add("owner",
-                                                                         address.getAddressStrStartWithSymbol())
+                                                                    .add("owner", address.getAddressStrStartWithSymbol())
                                                                     .get())
                                                    .get())
                              .get())

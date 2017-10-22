@@ -3,7 +3,6 @@ package test.com.kcash.data;
 import com.kcash.data.ACTAddress;
 import com.kcash.data.WithdrawCondition;
 import com.kcash.util.MyByte;
-
 import org.junit.Test;
 
 public class WithdrawConditionTest {
