@@ -1,5 +1,6 @@
 package com.kcash.data;
 
+import com.kcash.data.ACTAddress.Type;
 import java.math.BigDecimal;
 
 public enum CONTRACT {
@@ -19,6 +20,10 @@ public enum CONTRACT {
   private static final BigDecimal _2bd = new BigDecimal(Math.pow(10, _scale - 1));
 
   public static String makeTransferArgs(String toAddress, long amount) {
+    if (!toAddress.startsWith(Transaction.ACT_SYMBOL) ||
+        !ACTAddress.check(toAddress.substring(3), Type.ADDRESS)) {
+      throw new RuntimeException("地址错误");
+    }
     return toAddress + "|" + new BigDecimal(amount).divide(_2bd, _scale, BigDecimal.ROUND_DOWN)
                                                    .stripTrailingZeros();
   }
@@ -27,7 +32,7 @@ public enum CONTRACT {
   private ACTAddress actAddress;
 
   CONTRACT(String id, String contractName) {
-    this.actAddress = new ACTAddress(id);
+    this.actAddress = new ACTAddress(id, Type.CONTRACT);
     this.contractName = contractName;
   }
 

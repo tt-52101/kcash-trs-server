@@ -19,7 +19,10 @@ public class WithdrawCondition {
     this.slateId = 0; // ？？？
     this.type = WithdrawConditionType.WITHDRAW_SIGNATURE_TYPE;
     this.balanceType = WithdrawBalanceType.WITHDRAW_COMMON_TYPE;
-    this.data = address.getAddress21();
+    this.data = MyByte.builder()
+                      .copy(address.getEncoded())
+                      .padding()
+                      .getData();
   }
 
   public byte[] toBytes() {

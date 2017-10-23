@@ -60,7 +60,7 @@ public class ECC {
     try {
       KEY_FACTORY = KeyFactory.getInstance(ECDSAType, provider);
       KEY_PAIR_GENERATOR = KeyPairGenerator.getInstance(ECDSAType, provider);
-      KEY_PAIR_GENERATOR.initialize(new ECGenParameterSpec(ECDSAParam), SECURE_RANDOM);
+      KEY_PAIR_GENERATOR.initialize(new ECGenParameterSpec(ECDSAParam));
       KEY_AGREEMENT = KeyAgreement.getInstance(agreement, provider);
     } catch (Exception e) {
       throw new RuntimeException(e);

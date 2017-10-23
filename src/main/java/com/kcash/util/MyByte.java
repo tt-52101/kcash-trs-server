@@ -95,6 +95,14 @@ public class MyByte {
     return copyBytes(src, src.length - l, l);
   }
 
+  public static byte[] reverse(byte[] src) {
+    byte[] result = new byte[src.length];
+    for (int i = 0; i < src.length; i++) {
+      result[i] = src[src.length - i - 1];
+    }
+    return result;
+  }
+
   public static MyByte builder(int l) {
     return new MyByte(l);
   }

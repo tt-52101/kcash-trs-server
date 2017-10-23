@@ -21,13 +21,13 @@ public class TransactionTest {
 
   @Test
   public void testContractTransfer() {
-    Transaction trx1 = new Transaction(
+    Transaction trx = new Transaction(
         new ACTPrivateKey("5Jjxz2UYLfBoWkPgs2tDnC2XPEVfdxyFzACZoYWC7EXPyXG7z3P"),
         CONTRACT.SMC_t,
         "ACT3hzHVhrekqbhdGrC9quUW28nU4r2gBuGm",
         1L,
         1000L
     );
-    System.out.println(trx1.toJSONString());
+    System.out.println(trx.toJSONString());
   }
 }

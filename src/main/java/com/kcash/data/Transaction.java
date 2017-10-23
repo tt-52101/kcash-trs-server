@@ -2,6 +2,7 @@ package com.kcash.data;
 
 import static java.util.stream.Collectors.toList;
 
+import com.kcash.data.ACTAddress.Type;
 import com.kcash.util.ECC;
 import com.kcash.util.JSON;
 import com.kcash.util.MyByte;
@@ -72,6 +73,8 @@ public class Transaction {
                           .copy(0, 20)
                           .copy(CHAIN_ID)
                           .getData();
+      System.out.println(expiration);
+      System.out.println(MyByte.toHex(toSignBytes));
     }
     return toSignBytes;
   }
@@ -143,7 +146,7 @@ public class Transaction {
     } else {
       setNoneAlp();
     }
-    this.toAddress = new ACTAddress(toAddressStr);
+    this.toAddress = new ACTAddress(toAddressStr, Type.ADDRESS);
   }
 
   private void setNoneAlp() {

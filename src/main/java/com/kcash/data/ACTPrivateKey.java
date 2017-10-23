@@ -1,7 +1,6 @@
 package com.kcash.data;
 
-import static com.kcash.data.Transaction.ACT_SYMBOL;
-
+import com.kcash.data.ACTAddress.Type;
 import com.kcash.util.Base58;
 import com.kcash.util.ECC;
 import com.kcash.util.MyByte;
@@ -18,7 +17,6 @@ public class ACTPrivateKey {
   private ECPrivateKey ecPrivateKey;
   private byte[] publicKey;
   private byte[] publicKeyCompressed;
-  private String publicKeyStr;
   private ACTAddress actAddress;
 
   public ACTPrivateKey(String keyStr) {
@@ -97,24 +95,10 @@ public class ACTPrivateKey {
     return key;
   }
 
-  public String getPublicKeyStr() {
-    if (publicKeyStr == null) {
-      publicKeyStr = Base58.encode(
-          MyByte.builder()
-                .copy(getPublicKey(true))
-                .copy(RIPEMD160.hash(getPublicKey(true)), 4)
-                .getData());
-    }
-    return publicKeyStr;
-  }
-
-  public String getPublicKeyStringWithSymbol() {
-    return ACT_SYMBOL + getPublicKeyStr();
-  }
 
   public ACTAddress getAddress() {
     if (actAddress == null) {
-      actAddress = new ACTAddress(RIPEMD160.hash(SHA._512hash(getPublicKey(true))));
+      actAddress = new ACTAddress(RIPEMD160.hash(SHA._512hash(getPublicKey(true))), Type.ADDRESS);
     }
     return actAddress;
   }

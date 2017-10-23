@@ -6,6 +6,7 @@ import static com.kcash.data.Operation.OperationType.IMESSAGE_MEMO_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.WITHDRAW_OP_TYPE;
 
 import com.alibaba.fastjson.JSONObject;
+import com.kcash.data.ACTAddress.Type;
 import com.kcash.util.JSON;
 import com.kcash.util.MyByte;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class Operation {
             .add("data", JSON.build()
                              .add("claim_input_data", "")
                              .add("amount", amount)
-                             .add("balance_id", new ACTAddress(balanceId).getAddressStrStartWithSymbol())
+                             .add("balance_id", new ACTAddress(balanceId, Type.BALANCE_ID).getAddressStrStartWithSymbol())
                              .get())
             .get());
     return operation;
@@ -122,7 +123,7 @@ public class Operation {
         MyByte.builder()
               .copy(actPrivateKey.getPublicKey(true))
               .copy(balances)
-              .copy(contract.getActAddress().getAddress20())
+              .copy(contract.getActAddress().getEncoded())
               .copy(costLimit.toBytes())
               .copy(transactionFee.toBytes())
               .copy(method)
@@ -132,7 +133,8 @@ public class Operation {
         JSON.build()
             .add("type", CALL_CONTRACT_OP_TYPE.name().toLowerCase())
             .add("data", JSON.build()
-                             .add("caller", actPrivateKey.getPublicKeyStringWithSymbol())
+                             .add("caller", new ACTAddress(actPrivateKey.getPublicKey(true), Type.PUBLIC_KEY)
+                                 .getAddressStrStartWithSymbol())
                              .add("balances", mapFlatToList(balances))
                              .add("contract", contract.getActAddress().getAddressStrStartWithSymbol())
                              .add("costlimit", costLimit.toJSON())
@@ -148,7 +150,7 @@ public class Operation {
     List<String[]> result = new ArrayList<>();
     balances.forEach((k, v) -> result.add(
         new String[]{
-            new ACTAddress(k).getAddressStrStartWithSymbol(),
+            new ACTAddress(k, Type.BALANCE_ID).getAddressStrStartWithSymbol(),
             v.toString()
         }));
     return result;
