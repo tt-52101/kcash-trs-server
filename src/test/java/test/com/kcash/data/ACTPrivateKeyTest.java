@@ -18,10 +18,7 @@ public class ACTPrivateKeyTest {
 
   @Test
   public void testFromHex() {
-    print(new ACTPrivateKey(
-        MyByte.builder()
-              .copyByteString("202fe82446c0da855e9659b8e4f65c61704f1d85d89435cd6b9ea8102bb28a6d")
-              .getData()));
+    print(new ACTPrivateKey(MyByte.fromHex("202fe82446c0da855e9659b8e4f65c61704f1d85d89435cd6b9ea8102bb28a6d")));
   }
 
   private void print(ACTPrivateKey p) {
