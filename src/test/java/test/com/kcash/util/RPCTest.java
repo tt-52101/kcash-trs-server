@@ -8,7 +8,7 @@ import org.junit.Test;
 public class RPCTest {
 
   @Test
-  public void testGenerateSharedSecret() {
+  public void testNetworkBroadcastTransaction() {
     Transaction trx = new Transaction(
         new ACTPrivateKey("5Jjxz2UYLfBoWkPgs2tDnC2XPEVfdxyFzACZoYWC7EXPyXG7z3P"),
         1L,
@@ -18,5 +18,10 @@ public class RPCTest {
     System.out.println(trx.toJSONString());
     RPC.Response response = RPC.NETWORK_BROADCAST_TRANSACTION.call(trx.toJSONString());
     System.out.println(response);
+  }
+
+  @Test
+  public void testInfo() {
+    System.out.println(RPC.INFO.call());
   }
 }
