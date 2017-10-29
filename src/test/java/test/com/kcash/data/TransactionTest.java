@@ -10,11 +10,11 @@ public class TransactionTest {
   @Test
   public void testTransfer() {
     Transaction trx = new Transaction(
-        new ACTPrivateKey("5Jjxz2UYLfBoWkPgs2tDnC2XPEVfdxyFzACZoYWC7EXPyXG7z3P"),
-        10000L,
-        "ACTCd7GRUr3HpGTXBBpW2cWp4mRi38kZnhEo",
+        new ACTPrivateKey("5JaW9VUrSFtk4ZurSgS7Be4PvF8n1FNqfjhdyHi4DyA8MoC5wqG"),
+        100L,
+        "ACTLRQRkdAx83WyiD5gRFwRkYx3kvKg3U1CZ",
 //        "ACTCd7GRUr3HpGTXBBpW2cWp4mRi38kZnhEofffffffffffffffffffffffffffffff1",
-        "1234567890"
+        ""
     );
     System.out.println(trx.toJSONString());
   }

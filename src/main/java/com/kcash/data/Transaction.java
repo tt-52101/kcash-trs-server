@@ -30,10 +30,9 @@ public class Transaction {
   public static final String ACT_SYMBOL = "ACT";
   public static final String CONTRACT_SYMBOL = "CON";
   private static final byte[] CHAIN_ID =
-      MyByte.builder()
-            .copyByteString("6701c01c6042098645e0ed939fa78649bd10c2877af609fa0cad12da62690f97") // 测试链ID
-//      .copyByteString("6a1cb528f6e797e58913bff7a45cdd4709be75114ccd1ccb0e611b808f4d1b75") // 正式链ID
-            .getData();
+      MyByte.fromHex("6a1cb528f6e797e58913bff7a45cdd4709be75114ccd1ccb0e611b808f4d1b75");
+  // 6701c01c6042098645e0ed939fa78649bd10c2877af609fa0cad12da62690f97 /*测试链ID*/
+  // 6a1cb528f6e797e58913bff7a45cdd4709be75114ccd1ccb0e611b808f4d1b75 /*正式链ID*/
   public static final Long requiredFees = 1000L; // 转账手续费 0.01 * 100000
   private static final Long _transactionExpiration = 3_600_000L; // 3,600,000ms / 1h
 
@@ -64,7 +63,6 @@ public class Transaction {
     if (toSignBytes == null) {
       toSignBytes = MyByte.builder()
                           .copy(expiration / 1000L, 4)
-//                          .copy(1508401006, 4) //test expiration
                           .copy(0, 1) // reserved optional<uint64_t> wtf?
                           .copy(alpAccount)
                           .copy(alpInportAsset.toBytes())
@@ -73,8 +71,6 @@ public class Transaction {
                           .copy(0, 20)
                           .copy(CHAIN_ID)
                           .getData();
-      System.out.println(expiration);
-      System.out.println(MyByte.toHex(toSignBytes));
     }
     return toSignBytes;
   }

@@ -124,7 +124,7 @@ public class MyByte {
     return new String(hexChars);
   }
 
-  public static byte[] formHex(String s) {
+  public static byte[] fromHex(String s) {
     int l = s.length();
     byte[] bytes = new byte[l / 2];
     for (int i = 0; i < l; i += 2) {
@@ -212,7 +212,7 @@ public class MyByte {
     }
 
     public BuildList copyByteString(String s) {
-      list.add(formHex(s));
+      list.add(fromHex(s));
       return this;
     }
 

@@ -6,16 +6,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Random;
 import org.bouncycastle.util.encoders.Base64;
 
 public enum RPC {
-  INFO(2),
-  NETWORK_BROADCAST_TRANSACTION(2),;
-  private int id;
-
-  RPC(int id) {
-    this.id = id;
-  }
+  INFO,
+  NETWORK_BROADCAST_TRANSACTION,;
 
   private static final String url = "http://127.0.0.1:18096/rpc";
   private static final String rpc_user_name = "admin";
@@ -31,7 +27,7 @@ public enum RPC {
       connection.setDoOutput(true);
       DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
       wr.writeBytes("{\"jsonrpc\":\"2.0\",\"params\":" + Arrays.toString(params) +
-                    ",\"id\":\"" + id + "\",\"method\":\"" + name().toLowerCase() + "\"}");
+                    ",\"id\":\"" + new Random().nextInt(1024) + "\",\"method\":\"" + name().toLowerCase() + "\"}");
       wr.flush();
       wr.close();
 
