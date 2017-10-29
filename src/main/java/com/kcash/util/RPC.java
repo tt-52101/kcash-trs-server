@@ -27,24 +27,23 @@ public enum RPC {
       connection.setDoOutput(true);
       DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
       wr.writeBytes("{\"jsonrpc\":\"2.0\",\"params\":" + Arrays.toString(params) +
-                    ",\"id\":\"" + new Random().nextInt(1024) + "\",\"method\":\"" + name().toLowerCase() + "\"}");
+                    ",\"id\":\"" + new Random().nextInt(1024) + "\",\"method\":\"" +
+                    name().toLowerCase() + "\"}");
       wr.flush();
       wr.close();
 
       int responseCode = connection.getResponseCode();
-      String message = null;
-      if (200 == responseCode) {
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-          response.append(inputLine);
-        }
-        in.close();
-        message = response.toString();
+      BufferedReader in = new BufferedReader(
+          new InputStreamReader(200 == responseCode
+                                    ? connection.getInputStream()
+                                    : connection.getErrorStream()));
+      String inputLine;
+      StringBuilder response = new StringBuilder();
+      while ((inputLine = in.readLine()) != null) {
+        response.append(inputLine);
       }
-      return new Response(responseCode, message);
+      in.close();
+      return new Response(responseCode, response.toString());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
