@@ -125,12 +125,13 @@ public class Transaction {
   }
 
   private void setAddress(String toAddressStr, Long amount) {
-    if (toAddressStr.startsWith(ACT_SYMBOL)) {
+    if (toAddressStr.startsWith(ACT_SYMBOL) &&
+        ACTAddress.check(toAddressStr.substring(3), Type.ADDRESS)) {
       toAddressStr = toAddressStr.substring(3);
     } else {
       throw new RuntimeException("地址错误");
     }
-    if (toAddressStr.length() >= 64) { //获取子地址
+    if (toAddressStr.length() >= 60) { //获取子地址
       String sub = toAddressStr.substring(toAddressStr.length() - 32);
       if (sub.equals("ffffffffffffffffffffffffffffffff")) {
         setNoneAlp();

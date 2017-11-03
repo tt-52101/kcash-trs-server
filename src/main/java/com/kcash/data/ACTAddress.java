@@ -60,7 +60,16 @@ public class ACTAddress {
   }
 
   public static boolean check(String address, Type type) {
-    return check(Base58.decode(address), type);
+    if (type.equals(Type.ADDRESS) && address.length() >= 60) {
+      return checkAlpSubAddress(address.substring(address.length() - 32)) &&
+             check(Base58.decode(address.substring(0, address.length() - 32)), Type.ADDRESS);
+    } else {
+      return check(Base58.decode(address), type);
+    }
+  }
+
+  private static boolean checkAlpSubAddress(String subAddress) {
+    return subAddress.matches("[0-9a-f]{32}");
   }
 
   public String getAddressStr() {
