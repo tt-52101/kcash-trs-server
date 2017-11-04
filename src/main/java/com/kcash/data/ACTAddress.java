@@ -68,7 +68,7 @@ public class ACTAddress {
     }
   }
 
-  private static boolean checkAlpSubAddress(String subAddress) {
+  public static boolean checkAlpSubAddress(String subAddress) {
     return subAddress.matches("[0-9a-f]{32}");
   }
 

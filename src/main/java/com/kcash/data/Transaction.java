@@ -125,8 +125,7 @@ public class Transaction {
   }
 
   private void setAddress(String toAddressStr, Long amount) {
-    if (toAddressStr.startsWith(ACT_SYMBOL) &&
-        ACTAddress.check(toAddressStr.substring(3), Type.ADDRESS)) {
+    if (toAddressStr.startsWith(ACT_SYMBOL)) {
       toAddressStr = toAddressStr.substring(3);
     } else {
       throw new RuntimeException("地址错误");
@@ -136,6 +135,9 @@ public class Transaction {
       if (sub.equals("ffffffffffffffffffffffffffffffff")) {
         setNoneAlp();
       } else {
+        if (!ACTAddress.checkAlpSubAddress(sub)) {
+          throw new RuntimeException("子地址错误");
+        }
         alpAccount = ACT_SYMBOL + toAddressStr;
         alpInportAsset = new Asset(amount);
       }
