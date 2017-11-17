@@ -92,6 +92,9 @@ public class MyByte {
   }
 
   public static byte[] copyBytesR(byte[] src, int l) {
+    if (src.length < l) {
+      src = builder().copy(0, l - src.length).copy(src).getData();
+    }
     return copyBytes(src, src.length - l, l);
   }
 
