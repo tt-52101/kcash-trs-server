@@ -9,7 +9,7 @@ public class RPCTest {
 
   @Test
   public void testNetworkBroadcastTransaction() {
-    Transaction trx = new Transaction(
+    Transaction trx = Transaction.normal(
         new ACTPrivateKey("5Jjxz2UYLfBoWkPgs2tDnC2XPEVfdxyFzACZoYWC7EXPyXG7z3P"),
         1L,
         "ACTCd7GRUr3HpGTXBBpW2cWp4mRi38kZnhEo",

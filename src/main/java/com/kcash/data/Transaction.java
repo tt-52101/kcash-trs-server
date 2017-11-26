@@ -75,49 +75,74 @@ public class Transaction {
     return toSignBytes;
   }
 
-  public Transaction(
+
+  /**
+   * 普通转账
+   */
+  public static Transaction normal(
       ACTPrivateKey actPrivateKey, // 转出者的私钥
       Long amount,           // 转出数额 * 100000
       String toAddressStr,   // 目标地址
       String remark) {
-    this(actPrivateKey, amount, toAddressStr);
-    this.setTransferOperations(amount, remark);
-    this.sign();
+    Transaction trx = new Transaction(actPrivateKey);
+    trx.setAddress(toAddressStr, amount);
+    trx.setTransferOperations(amount, remark);
+    trx.sign();
+    return trx;
   }
 
-  public Transaction(
+
+  /**
+   * 转账到合约
+   */
+  public static Transaction toContract(
+      ACTPrivateKey actPrivateKey,
+      CONTRACT contract,
+      long amount,
+      long maxCallContractCost) {
+    Transaction trx = new Transaction(actPrivateKey);
+    trx.setTransferToContractOperations(contract, amount, maxCallContractCost);
+    trx.sign();
+    return trx;
+  }
+
+  /**
+   * 合约 transfer_to 调用
+   */
+  public static Transaction callContractTransferTo(
       ACTPrivateKey actPrivateKey,
       CONTRACT contract,
       String toAddressStr,
       long amount,
       long maxCallContractCost) {
-    this(actPrivateKey, amount, toAddressStr);
-    this.setContractTransferOperations(contract, toAddressStr, amount, maxCallContractCost);
-    this.sign();
+    Transaction trx = new Transaction(actPrivateKey);
+    trx.setAddress(toAddressStr, amount);
+    trx.setContractTransferOperations(contract, toAddressStr, amount, maxCallContractCost);
+    trx.sign();
+    return trx;
   }
 
-  private Transaction(
-      ACTPrivateKey actPrivateKey, // 转出者的私钥
-      Long amount,          // 转出数额 * 100000
-      String toAddressStr   /* 目标地址*/) {
-    this.checkArguments(actPrivateKey, amount, toAddressStr);
+
+  private Transaction(ACTPrivateKey actPrivateKey) {
+    if (actPrivateKey == null) {
+      throw new RuntimeException("param actPrivateKey is not present");
+    }
     this.operations = new ArrayList<>();
     this.signatures = new ArrayList<>();
     this.actPrivateKey = actPrivateKey;
     this.voteType = VoteType.VOTE_NONE; // 最简方式
     this.expiration = System.currentTimeMillis() + _transactionExpiration;
     this.resultTrxType = ResultTransactionType.ORIGIN_TRANSACTION;
-    this.setAddress(toAddressStr, amount);
+    this.alpAccount = "";
+    this.alpInportAsset = new Asset(0L);
   }
 
   private void sign() {
     this.signatures.add(ECC.signCompact(actPrivateKey, SHA._256hash(toSign())));
   }
 
-  private void checkArguments(ACTPrivateKey actPrivateKey, long amount, String toAddressStr) {
-    if (actPrivateKey == null) {
-      throw new RuntimeException("param actPrivateKey is not present");
-    } else if (amount <= 0) {
+  private void checkArguments(long amount, String toAddressStr) {
+    if (amount <= 0) {
       throw new RuntimeException("param amount is less than or equal to 0");
     } else if (toAddressStr == null) {
       throw new RuntimeException("param toAddressStr is not present");
@@ -125,6 +150,7 @@ public class Transaction {
   }
 
   private void setAddress(String toAddressStr, Long amount) {
+    this.checkArguments(amount, toAddressStr);
     if (toAddressStr.startsWith(ACT_SYMBOL)) {
       toAddressStr = toAddressStr.substring(3);
     } else {
@@ -132,9 +158,7 @@ public class Transaction {
     }
     if (toAddressStr.length() >= 60) { //获取子地址
       String sub = toAddressStr.substring(toAddressStr.length() - 32);
-      if (sub.equals("ffffffffffffffffffffffffffffffff")) {
-        setNoneAlp();
-      } else {
+      if (!sub.equals("ffffffffffffffffffffffffffffffff")) {
         if (!ACTAddress.checkAlpSubAddress(sub)) {
           throw new RuntimeException("子地址错误");
         }
@@ -142,15 +166,22 @@ public class Transaction {
         alpInportAsset = new Asset(amount);
       }
       toAddressStr = toAddressStr.substring(0, toAddressStr.length() - 32);
-    } else {
-      setNoneAlp();
     }
     this.toAddress = new ACTAddress(toAddressStr, Type.ADDRESS);
   }
 
-  private void setNoneAlp() {
-    alpAccount = "";
-    alpInportAsset = new Asset(0L);
+  private void setTransferToContractOperations(
+      CONTRACT contract,
+      long amount,
+      long maxCallContractCost) {
+    operations.add(
+        Operation.createTransferToContract(
+            actPrivateKey,
+            contract,
+            new Asset(amount),
+            new Asset(maxCallContractCost)
+        )
+    );
   }
 
   private void setTransferOperations(long amount, String remark) {

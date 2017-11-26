@@ -3,6 +3,7 @@ package com.kcash.data;
 import static com.kcash.data.Operation.OperationType.CALL_CONTRACT_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.DEPOSIT_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.IMESSAGE_MEMO_OP_TYPE;
+import static com.kcash.data.Operation.OperationType.TRANSFER_CONTRACT_OP_TYPE;
 import static com.kcash.data.Operation.OperationType.WITHDRAW_OP_TYPE;
 
 import com.alibaba.fastjson.JSONObject;
@@ -141,6 +142,42 @@ public class Operation {
                              .add("transaction_fee", transactionFee.toJSON())
                              .add("method", method)
                              .add("args", args)
+                             .get())
+            .get());
+    return operation;
+  }
+
+  public static Operation createTransferToContract(
+      ACTPrivateKey actPrivateKey,
+      CONTRACT contract,
+      Asset transferAmount,
+      Asset costLimit) {
+    Map<byte[], Long> balances = new HashMap<>();
+    Asset transactionFee = new Asset(Transaction.requiredFees);
+    balances.put(new WithdrawCondition(actPrivateKey.getAddress()).getBalanceId(),
+                 costLimit.getAmount() + transactionFee.getAmount() + transferAmount.getAmount());
+    Operation operation = new Operation();
+    operation.setOperationType(TRANSFER_CONTRACT_OP_TYPE);
+    operation.setData(
+        MyByte.builder()
+              .copy(actPrivateKey.getPublicKey(true))
+              .copy(costLimit.toBytes())
+              .copy(transactionFee.toBytes())
+              .copy(transferAmount.toBytes())
+              .copy(balances)
+              .copy(contract.getActAddress().getEncoded())
+              .getData());
+    operation.setJson(
+        JSON.build()
+            .add("type", TRANSFER_CONTRACT_OP_TYPE.name().toLowerCase())
+            .add("data", JSON.build()
+                             .add("from", new ACTAddress(actPrivateKey.getPublicKey(true), Type.PUBLIC_KEY)
+                                 .getAddressStrStartWithSymbol())
+                             .add("costlimit", costLimit.toJSON())
+                             .add("transaction_fee", transactionFee.toJSON())
+                             .add("transfer_amount", transferAmount.toJSON())
+                             .add("balances", mapFlatToList(balances))
+                             .add("contract_id", contract.getActAddress().getAddressStrStartWithSymbol())
                              .get())
             .get());
     return operation;
