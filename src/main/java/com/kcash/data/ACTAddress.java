@@ -8,7 +8,6 @@ import com.kcash.util.SHA;
 public class ACTAddress {
   private String addressStr;
   private byte[] encoded;
-  private byte[] id;
 
   private static final int checksum_len = 4;
 
@@ -95,12 +94,5 @@ public class ACTAddress {
 
   public byte[] getEncoded() {
     return encoded;
-  }
-
-  public byte[] getId() {
-    if (id == null) {
-      id = RIPEMD160.hash(SHA._512hash(encoded));
-    }
-    return id;
   }
 }
