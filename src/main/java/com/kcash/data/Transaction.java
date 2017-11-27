@@ -6,6 +6,7 @@ import com.kcash.data.ACTAddress.Type;
 import com.kcash.util.ECC;
 import com.kcash.util.JSON;
 import com.kcash.util.MyByte;
+import com.kcash.util.RIPEMD160;
 import com.kcash.util.SHA;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,6 +27,7 @@ public class Transaction {
   private ACTPrivateKey actPrivateKey;
   private ACTAddress toAddress;
   private String jsonStr;
+  private byte[] id;
   //
   public static final String ACT_SYMBOL = "ACT";
   public static final String CONTRACT_SYMBOL = "CON";
@@ -57,6 +59,13 @@ public class Transaction {
                     .getData();
     }
     return bytes;
+  }
+
+  public byte[] getId() {
+    if (id == null) {
+      id = RIPEMD160.hash(SHA._512hash(toBytes()));
+    }
+    return id;
   }
 
   private byte[] toSign() {
