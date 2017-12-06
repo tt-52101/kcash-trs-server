@@ -107,7 +107,7 @@ public class Contract {
           amount);
     }
 
-    protected Call call(String method, String args) {
+    Call call(String method, String args) {
       return new Call(getActAddress(), method, args);
     }
 
