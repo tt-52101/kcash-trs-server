@@ -3,7 +3,6 @@ package com.kcash.data;
 import static java.util.stream.Collectors.toList;
 
 import com.kcash.data.ACTAddress.Type;
-import com.kcash.data.contract.Contract;
 import com.kcash.util.ECC;
 import com.kcash.util.JSON;
 import com.kcash.util.MyByte;

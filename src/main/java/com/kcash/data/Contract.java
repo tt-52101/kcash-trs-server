@@ -1,6 +1,5 @@
-package com.kcash.data.contract;
+package com.kcash.data;
 
-import com.kcash.data.ACTAddress;
 import com.kcash.data.ACTAddress.Type;
 import java.math.BigDecimal;
 

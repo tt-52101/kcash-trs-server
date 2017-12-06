@@ -2,7 +2,7 @@ package test.com.kcash.data;
 
 import com.kcash.data.ACTPrivateKey;
 import com.kcash.data.Transaction;
-import com.kcash.data.contract.Contract;
+import com.kcash.data.Contract;
 import org.junit.Test;
 
 public class TransactionTest {

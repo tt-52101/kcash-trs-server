@@ -8,7 +8,6 @@ import static com.kcash.data.Operation.OperationType.WITHDRAW_OP_TYPE;
 
 import com.alibaba.fastjson.JSONObject;
 import com.kcash.data.ACTAddress.Type;
-import com.kcash.data.contract.Contract;
 import com.kcash.util.JSON;
 import com.kcash.util.MyByte;
 import java.util.ArrayList;
