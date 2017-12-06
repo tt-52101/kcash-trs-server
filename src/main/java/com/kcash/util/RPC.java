@@ -18,7 +18,7 @@ public enum RPC {
   private static final String rpc_password = "123456";
   private static final String auth = "000000" + Base64.toBase64String((rpc_user_name + ":" + rpc_password).getBytes());
 
-  public Response call(String... params) {
+  public static Response mCall(String method, String... params) {
     try {
       HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
       connection.setRequestMethod("POST");
@@ -27,11 +27,10 @@ public enum RPC {
       connection.setDoOutput(true);
       DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
       wr.writeBytes("{\"jsonrpc\":\"2.0\",\"params\":" + Arrays.toString(params) +
-                    ",\"id\":\"" + new Random().nextInt(1024) + "\",\"method\":\"" +
-                    name().toLowerCase() + "\"}");
+                    ",\"id\":\"" + new Random().nextInt(1024) +
+                    "\",\"method\":\"" + method + "\"}");
       wr.flush();
       wr.close();
-
       int responseCode = connection.getResponseCode();
       BufferedReader in = new BufferedReader(
           new InputStreamReader(200 == responseCode
@@ -47,6 +46,10 @@ public enum RPC {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public Response call(String... params) {
+    return mCall(name(), params);
   }
 
   public static class Response {

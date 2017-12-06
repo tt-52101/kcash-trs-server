@@ -8,6 +8,7 @@ import static com.kcash.data.Operation.OperationType.WITHDRAW_OP_TYPE;
 
 import com.alibaba.fastjson.JSONObject;
 import com.kcash.data.ACTAddress.Type;
+import com.kcash.data.contract.Contract;
 import com.kcash.util.JSON;
 import com.kcash.util.MyByte;
 import java.util.ArrayList;
@@ -110,9 +111,7 @@ public class Operation {
 
   public static Operation createCallContract(
       ACTPrivateKey actPrivateKey,
-      CONTRACT contract,
-      String method,
-      String args,
+      Contract.Call contractCall,
       Asset costLimit) {
     Map<byte[], Long> balances = new HashMap<>();
     Asset transactionFee = new Asset(Transaction.requiredFees);
@@ -124,11 +123,11 @@ public class Operation {
         MyByte.builder()
               .copy(actPrivateKey.getPublicKey(true))
               .copy(balances)
-              .copy(contract.getActAddress().getEncoded())
+              .copy(contractCall.getContractAddress().getEncoded())
               .copy(costLimit.toBytes())
               .copy(transactionFee.toBytes())
-              .copy(method)
-              .copy(args)
+              .copy(contractCall.getMethod())
+              .copy(contractCall.getArgs())
               .getData());
     operation.setJson(
         JSON.build()
@@ -137,11 +136,11 @@ public class Operation {
                              .add("caller", new ACTAddress(actPrivateKey.getPublicKey(true), Type.PUBLIC_KEY)
                                  .getAddressStrStartWithSymbol())
                              .add("balances", mapFlatToList(balances))
-                             .add("contract", contract.getActAddress().getAddressStrStartWithSymbol())
+                             .add("contract", contractCall.getContractAddress().getAddressStrStartWithSymbol())
                              .add("costlimit", costLimit.toJSON())
                              .add("transaction_fee", transactionFee.toJSON())
-                             .add("method", method)
-                             .add("args", args)
+                             .add("method", contractCall.getMethod())
+                             .add("args", contractCall.getArgs())
                              .get())
             .get());
     return operation;
@@ -149,7 +148,7 @@ public class Operation {
 
   public static Operation createTransferToContract(
       ACTPrivateKey actPrivateKey,
-      CONTRACT contract,
+      ACTAddress contractAddress,
       Asset transferAmount,
       Asset costLimit) {
     Map<byte[], Long> balances = new HashMap<>();
@@ -165,7 +164,7 @@ public class Operation {
               .copy(transactionFee.toBytes())
               .copy(transferAmount.toBytes())
               .copy(balances)
-              .copy(contract.getActAddress().getEncoded())
+              .copy(contractAddress.getEncoded())
               .getData());
     operation.setJson(
         JSON.build()
@@ -177,7 +176,7 @@ public class Operation {
                              .add("transaction_fee", transactionFee.toJSON())
                              .add("transfer_amount", transferAmount.toJSON())
                              .add("balances", mapFlatToList(balances))
-                             .add("contract_id", contract.getActAddress().getAddressStrStartWithSymbol())
+                             .add("contract_id", contractAddress.getAddressStrStartWithSymbol())
                              .get())
             .get());
     return operation;

@@ -3,6 +3,7 @@ package com.kcash.data;
 import static java.util.stream.Collectors.toList;
 
 import com.kcash.data.ACTAddress.Type;
+import com.kcash.data.contract.Contract;
 import com.kcash.util.ECC;
 import com.kcash.util.JSON;
 import com.kcash.util.MyByte;
@@ -106,11 +107,24 @@ public class Transaction {
    */
   public static Transaction toContract(
       ACTPrivateKey actPrivateKey,
-      CONTRACT contract,
+      ACTAddress contractAddress,
       long amount,
       long maxCallContractCost) {
     Transaction trx = new Transaction(actPrivateKey);
-    trx.setTransferToContractOperations(contract, amount, maxCallContractCost);
+    trx.setTransferToContractOperations(contractAddress, amount, maxCallContractCost);
+    trx.sign();
+    return trx;
+  }
+
+  /**
+   * 合约调用
+   */
+  public static Transaction callContract(
+      ACTPrivateKey actPrivateKey,
+      Contract.Call contractCall,
+      long maxCallContractCost) {
+    Transaction trx = new Transaction(actPrivateKey);
+    trx.setCallContractOperations(contractCall, new Asset(maxCallContractCost));
     trx.sign();
     return trx;
   }
@@ -120,13 +134,11 @@ public class Transaction {
    */
   public static Transaction callContractTransferTo(
       ACTPrivateKey actPrivateKey,
-      CONTRACT contract,
-      String toAddressStr,
-      long amount,
+      Contract.TransferToCall transferToCall,
       long maxCallContractCost) {
     Transaction trx = new Transaction(actPrivateKey);
-    trx.setAddress(toAddressStr, amount);
-    trx.setContractTransferOperations(contract, toAddressStr, amount, maxCallContractCost);
+    trx.setAddress(transferToCall.getToAddress(), transferToCall.getAmount());
+    trx.setCallContractOperations(transferToCall, new Asset(maxCallContractCost));
     trx.sign();
     return trx;
   }
@@ -180,13 +192,13 @@ public class Transaction {
   }
 
   private void setTransferToContractOperations(
-      CONTRACT contract,
+      ACTAddress contractAddress,
       long amount,
       long maxCallContractCost) {
     operations.add(
         Operation.createTransferToContract(
             actPrivateKey,
-            contract,
+            contractAddress,
             new Asset(amount),
             new Asset(maxCallContractCost)
         )
@@ -201,24 +213,8 @@ public class Transaction {
     }
   }
 
-  private void setContractTransferOperations(
-      CONTRACT contract,
-      String toAddress,
-      long amount,
-      long maxCallContractCost) {
-    setCallContractOperations(
-        contract,
-        CONTRACT.TRANSFER_METHOD,
-        CONTRACT.makeTransferArgs(toAddress, amount),
-        new Asset(maxCallContractCost));
-  }
-
-  private void setCallContractOperations(
-      CONTRACT contract,
-      String method,
-      String args,
-      Asset costLimit) {
-    operations.add(Operation.createCallContract(actPrivateKey, contract, method, args, costLimit));
+  private void setCallContractOperations(Contract.Call contractCall, Asset costLimit) {
+    operations.add(Operation.createCallContract(actPrivateKey, contractCall, costLimit));
   }
 
   private enum ResultTransactionType {
