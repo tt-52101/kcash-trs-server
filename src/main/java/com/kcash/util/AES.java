@@ -62,7 +62,7 @@ public class AES {
   private static byte[] padding(byte[] content) {
     return MyByte.builder()
                  .copy(content)
-                 .copy(0, 16 - content.length % 16)
+                 .copy(0, (16 - content.length % 16) % 16)
                  .getData();
   }
 
