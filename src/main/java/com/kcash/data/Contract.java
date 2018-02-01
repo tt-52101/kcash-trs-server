@@ -26,6 +26,18 @@ public class Contract {
     }
   }
 
+  public static __BIYONG BIYONG = new __BIYONG();
+
+  public static class __BIYONG extends Body {
+    String id() {
+      return "JUsz8YBVzDyQzKcrD7RYEVr77st4Uuywv";
+    }
+
+    String name() {
+      return "BIYONG_Coin";
+    }
+  }
+
 
   public static class Call {
     private ACTAddress contractAddress;
